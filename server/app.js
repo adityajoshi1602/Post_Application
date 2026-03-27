@@ -14,23 +14,27 @@ const upload = multer({ storage: multer.memoryStorage() })
 
 app.post('/create', upload.single('image'), async (req, res) => {
     try {
+        if (!req.file) {
+            return res.status(400).json({ msg: "No file uploaded" })
+        }
+
         console.log(req.body)
+        console.log(req.file)
 
         const result = await uploadfiles(req.file.buffer)
-
-        console.log(result)
 
         await postmodel.create({
             image: result.url,
             caption: req.body.caption
         })
+
         res.status(200).json({
             msg: 'uploaded',
             image: result.url,
             caption: req.body.caption
         })
-    }
-    catch (err) {
+
+    } catch (err) {
         console.error(err)
         res.status(500).json({ msg: err.message })
     }

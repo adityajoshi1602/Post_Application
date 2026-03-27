@@ -1,49 +1,86 @@
-import React from 'react'
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
+  const [image, setImage] = useState(null);
+  const [caption, setCaption] = useState("");
+  const navigate=useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!image) {
+      alert("Select image first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("caption", caption);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/create",
+        formData
+      );
+      console.log(res.data);
+      navigate('/posts')
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <section className="w-[500px] p-8 bg-white rounded-2xl border shadow-sm">
 
-      <section className="w-[550px] p-9 bg-white rounded-2xl border shadow-md">
-
-        <h1 className="text-2xl font-semibold text-center mb-8">
+        <h1 className="text-xl font-semibold text-center mb-6">
           Create Post
         </h1>
 
-        <form className="flex flex-col gap-6">
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
 
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center cursor-pointer hover:border-black transition">
-            <label className="cursor-pointer block">
-              <p className="text-gray-600 text-lg mb-2">
-                Click to upload image
-              </p>
+          {/* Upload */}
+          <label className="border border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-black transition">
+            <p className="text-gray-600 mb-2">
+              Click to upload image
+            </p>
 
-              <input type="file" className="hidden" />
+            <input
+              type="file"
+              name="image"
+              className="hidden"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
 
-              <span className="text-sm text-gray-400">
-                JPG, PNG supported
-              </span>
-            </label>
-          </div>
+            <span className="text-xs text-gray-400">
+              JPG, PNG supported
+            </span>
+          </label>
 
+          {/* Caption */}
           <input
             type="text"
+            name="caption"
             placeholder="Enter caption"
-            className="w-full border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            className="border p-3 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
           />
 
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
+            className="bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
           >
             Submit
           </button>
 
         </form>
-
       </section>
     </div>
-  )
-}
+  );
+};
 
-export default CreatePost
+export default CreatePost;
